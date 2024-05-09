@@ -48,12 +48,12 @@ The project repository consists of the following components:
 
 ## Contact Information
 
-If you have any questions or need assistance with the Level 3 MERN stack project, feel free to reach out to us:
+If you have any questions or need assistance with the Level 3 MERN stack project, feel free to reach out to me:
 - Portfolio: [Aditya Raj](https://adityaraj-portfolio.vercel.app/)
 - Github: [Aditya Raj](https://github.com/RajAditya01)
 - Linkedin: [Aditya Raj](https://www.linkedin.com/in/aditya-raj-aa923721a/)
 - Email: [adityavishal903@gmail.com](mailto:adityavishal903@gmail.com)
 
-We're excited to see your creativity and problem-solving skills shine through as you work on the Level 3 MERN stack project!
+I'm excited to support you throughout your journey in working on the Level 3 MERN stack project!
 
 Happy coding! 🚀
