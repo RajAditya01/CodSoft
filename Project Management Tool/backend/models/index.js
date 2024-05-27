@@ -1,10 +1,9 @@
-// import { number, string } from "joi";
 import mongoose from "mongoose";
 
 const project = new mongoose.Schema({
     title: {
         type: String,
-        unique: true // `email` must be unique
+        unique: true // `title` must be unique
     },
     description: String,
     task: [
@@ -18,11 +17,11 @@ const project = new mongoose.Schema({
             attachment: [
                 { type: String, url: String }
             ],
+            deadline: Date, // Adding deadline field
             created_at: { type: Date, default: Date.now },
             updated_at: { type: Date, default: Date.now },
         }
     ]
-}, { timestamps: true })
-
+}, { timestamps: true });
 
 export default mongoose.model('Project', project);

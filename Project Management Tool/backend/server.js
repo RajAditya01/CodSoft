@@ -6,7 +6,7 @@ import cors from "cors";
 
 dotenv.config()
 mongoose.connect(process.env.MONGODB_PATH, () => {
-    console.log('connect');
+    console.log('DB connect :)');
 }, (e) => console.log(e))
 
 

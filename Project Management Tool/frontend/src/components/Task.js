@@ -2,48 +2,19 @@ import React, { useEffect, useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { v4 as uuid } from "uuid";
 import AddTaskModal from "./AddTaskModal";
-import BtnPrimary from './BtnPrimary'
+import BtnPrimary from './BtnPrimary';
 import DropdownMenu from "./DropdownMenu";
-// import TaskModal from "./TaskModal";
 import { useParams, useNavigate } from "react-router";
-import ProjectDropdown from "./ProjectDropdown"
+import ProjectDropdown from "./ProjectDropdown";
 import axios from "axios";
 import toast from "react-hot-toast";
 import TaskModal from "./TaskModal";
 
-
 function Task() {
-
-    // const itemsFromBackend = [
-    //     { _id: uuid(), content: "First task" },
-    //     { _id: uuid(), content: "Second task" },
-    //     { _id: uuid(), content: "Third task" },
-    //     { _id: uuid(), content: "Forth task" }
-    // ];
-
-    // const columnsFromBackend = {
-    //     [uuid()]: {
-    //         name: "Requested",
-    //         items: []
-    //     },
-    //     [uuid()]: {
-    //         name: "To do",
-    //         items: []
-    //     },
-    //     [uuid()]: {
-    //         name: "In Progress",
-    //         items: []
-    //     },
-    //     [uuid()]: {
-    //         name: "Done",
-    //         items: []
-    //     }
-    // };
-
     const onDragEnd = (result, columns, setColumns) => {
         if (!result.destination) return;
         const { source, destination } = result;
-        let data = {}
+        let data = {};
         if (source.droppableId !== destination.droppableId) {
             const sourceColumn = columns[source.droppableId];
             const destColumn = columns[destination.droppableId];
@@ -56,24 +27,24 @@ function Task() {
                 ...columns,
                 [source.droppableId]: {
                     ...sourceColumn,
-                    items: sourceItems
+                    items: sourceItems,
                 },
                 [destination.droppableId]: {
                     ...destColumn,
-                    items: destItems
-                }
+                    items: destItems,
+                },
             });
             data = {
                 ...columns,
                 [source.droppableId]: {
                     ...sourceColumn,
-                    items: sourceItems
+                    items: sourceItems,
                 },
                 [destination.droppableId]: {
                     ...destColumn,
-                    items: destItems
-                }
-            }
+                    items: destItems,
+                },
+            };
         } else {
             const column = columns[source.droppableId];
             const copiedItems = [...column.items];
@@ -83,25 +54,22 @@ function Task() {
                 ...columns,
                 [source.droppableId]: {
                     ...column,
-                    items: copiedItems
-                }
+                    items: copiedItems,
+                },
             });
             data = {
                 ...columns,
                 [source.droppableId]: {
                     ...column,
-                    items: copiedItems
-                }
-            }
-
+                    items: copiedItems,
+                },
+            };
         }
 
-        updateTodo(data)
+        updateTodo(data);
     };
 
     const [isAddTaskModalOpen, setAddTaskModal] = useState(false);
-
-    // const [columns, setColumns] = useState(columnsFromBackend);
     const [columns, setColumns] = useState({});
     const [isRenderChange, setRenderChange] = useState(false);
     const [isTaskOpen, setTaskOpen] = useState(false);
@@ -114,64 +82,56 @@ function Task() {
         if (!isAddTaskModalOpen || isRenderChange) {
             axios.get(`http://localhost:9000/project/${projectId}`)
                 .then((res) => {
-                    setTitle(res.data[0].title)
+                    setTitle(res.data[0].title);
                     setColumns({
                         [uuid()]: {
                             name: "Requested",
-                            items: res.data[0].task.filter((task) => task.stage === "Requested").sort((a, b) => {
-                                return a.order - b.order;
-                            })
+                            items: res.data[0].task.filter(task => task.stage === "Requested").sort((a, b) => a.order - b.order),
                         },
                         [uuid()]: {
                             name: "To do",
-                            items: res.data[0].task.filter((task) => task.stage === "To do").sort((a, b) => {
-                                return a.order - b.order;
-                            })
+                            items: res.data[0].task.filter(task => task.stage === "To do").sort((a, b) => a.order - b.order),
                         },
                         [uuid()]: {
                             name: "In Progress",
-                            items: res.data[0].task.filter((task) => task.stage === "In Progress").sort((a, b) => {
-                                return a.order - b.order;
-                            })
+                            items: res.data[0].task.filter(task => task.stage === "In Progress").sort((a, b) => a.order - b.order),
                         },
                         [uuid()]: {
                             name: "Done",
-                            items: res.data[0].task.filter((task) => task.stage === "Done").sort((a, b) => {
-                                return a.order - b.order;
-                            })
-                        }
-                    })
-                    setRenderChange(false)
+                            items: res.data[0].task.filter(task => task.stage === "Done").sort((a, b) => a.order - b.order),
+                        },
+                    });
+                    setRenderChange(false);
                 }).catch((error) => {
-                    toast.error('Something went wrong')
-                })
+                    toast.error('Something went wrong');
+                });
         }
     }, [projectId, isAddTaskModalOpen, isRenderChange]);
 
     const updateTodo = (data) => {
         axios.put(`http://localhost:9000/project/${projectId}/todo`, data)
             .then((res) => {
+                toast.success('Tasks updated successfully');
             }).catch((error) => {
-                toast.error('Something went wrong')
-            })
-    }
+                toast.error('Something went wrong');
+            });
+    };
 
     const handleDelete = (e, taskId) => {
         e.stopPropagation();
         axios.delete(`http://localhost:9000/project/${projectId}/task/${taskId}`)
             .then((res) => {
-                toast.success('Task is deleted')
-                setRenderChange(true)
+                toast.success('Task is deleted');
+                setRenderChange(true);
             }).catch((error) => {
-
-                toast.error('Something went wrong')
-            })
-    }
+                toast.error('Something went wrong');
+            });
+    };
 
     const handleTaskDetails = (id) => {
         setTaskId({ projectId, id });
         setTaskOpen(true);
-    }
+    };
 
     return (
         <div className='px-12 py-6 w-full'>
@@ -180,21 +140,16 @@ function Task() {
                     <span>{title.slice(0, 25)}{title.length > 25 && '...'}</span>
                     <ProjectDropdown id={projectId} navigate={navigate} />
                 </h1>
-                <BtnPrimary onClick={() => setAddTaskModal(true)}>Add todo</BtnPrimary>
+                <BtnPrimary onClick={() => setAddTaskModal(true)}>Add Task</BtnPrimary>
             </div>
-            <DragDropContext
-                onDragEnd={result => onDragEnd(result, columns, setColumns)}
-            >
+            <DragDropContext onDragEnd={result => onDragEnd(result, columns, setColumns)}>
                 <div className="flex gap-5">
                     {Object.entries(columns).map(([columnId, column], index) => {
                         return (
-                            <div
-                                className="w-3/12 h-[580px]"
-                                key={columnId}
-                            >
+                            <div className="w-3/12 h-[580px]" key={columnId}>
                                 <div className="pb-2.5 w-full flex justify-between">
                                     <div className="inline-flex items-center space-x-2">
-                                        <h2 className=" text-[#1e293b] font-medium text-sm uppercase leading-3">{column.name}</h2>
+                                        <h2 className="text-[#1e293b] font-medium text-sm uppercase leading-3">{column.name}</h2>
                                         <span className={`h-5 inline-flex items-center justify-center px-2 mb-[2px] leading-none rounded-full text-xs font-semibold text-gray-500 border border-gray-300 ${column.items.length < 1 && 'invisible'}`}>{column.items?.length}</span>
                                     </div>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width={15} className="text-[#9ba8bc]" viewBox="0 0 448 512"><path d="M120 256c0 30.9-25.1 56-56 56s-56-25.1-56-56s25.1-56 56-56s56 25.1 56 56zm160 0c0 30.9-25.1 56-56 56s-56-25.1-56-56s25.1-56 56-56s56 25.1 56 56zm104 56c-30.9 0-56-25.1-56-56s25.1-56 56-56s56 25.1 56 56s-25.1 56-56 56z" /></svg>
@@ -210,11 +165,7 @@ function Task() {
                                                 >
                                                     {column.items.map((item, index) => {
                                                         return (
-                                                            <Draggable
-                                                                key={item._id}
-                                                                draggableId={item._id}
-                                                                index={index}
-                                                            >
+                                                            <Draggable key={item._id} draggableId={item._id} index={index}>
                                                                 {(provided, snapshot) => {
                                                                     return (
                                                                         <div
@@ -244,16 +195,15 @@ function Task() {
                                             );
                                         }}
                                     </Droppable>
-
                                 </div>
                             </div>
                         );
                     })}
-                </div >
-            </DragDropContext >
+                </div>
+            </DragDropContext>
             <AddTaskModal isAddTaskModalOpen={isAddTaskModalOpen} setAddTaskModal={setAddTaskModal} projectId={projectId} />
             <TaskModal isOpen={isTaskOpen} setIsOpen={setTaskOpen} id={taskId} />
-        </div >
+        </div>
     );
 }
 

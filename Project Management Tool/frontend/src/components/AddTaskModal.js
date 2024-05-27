@@ -1,64 +1,70 @@
-import React, { Fragment, useEffect, useState } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
-import BtnPrimary from './BtnPrimary'
-import BtnSecondary from './BtnSecondary'
-import axios from 'axios'
-import toast from 'react-hot-toast'
+import React, { Fragment, useEffect, useState } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import BtnPrimary from './BtnPrimary';
+import BtnSecondary from './BtnSecondary';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const AddTaskModal = ({ isAddTaskModalOpen, setAddTaskModal, projectId = null, taskId = null, edit = false, refreshData }) => {
 
-    const [title, setTitle] = useState('')
+    const [title, setTitle] = useState('');
     const [desc, setDesc] = useState('');
+    const [deadline, setDeadline] = useState('');
 
     useEffect(() => {
         if (edit && isAddTaskModalOpen) {
             axios.get(`http://localhost:9000/project/${projectId}/task/${taskId}`)
                 .then((res) => {
-                    setTitle(res.data[0].task[0].title)
-                    setDesc(res.data[0].task[0].description)
+                    setTitle(res.data[0].task[0].title);
+                    setDesc(res.data[0].task[0].description);
+                    setDeadline(res.data[0].task[0].deadline ? new Date(res.data[0].task[0].deadline).toISOString().split('T')[0] : '');
                 })
                 .catch((error) => {
-                    toast.error('Something went wrong')
-                })
-            console.log('edit function call')
+                    toast.error('Something went wrong');
+                });
         }
     }, [isAddTaskModalOpen]);
 
     const handleSubmit = (e) => {
-        e.preventDefault()
+        e.preventDefault();
+        const taskData = { title, description: desc, deadline };
+
         if (!edit) {
-            axios.post(`http://localhost:9000/project/${projectId}/task`, { title, description: desc })
+            axios.post(`http://localhost:9000/project/${projectId}/task`, taskData)
                 .then((res) => {
-                    setAddTaskModal(false)
-                    toast.success('Task created successfully')
-                    setTitle('')
-                    setDesc('')
+                    setAddTaskModal(false);
+                    toast.success('Task created successfully');
+                    setTitle('');
+                    setDesc('');
+                    setDeadline('');
+                    refreshData();
                 })
                 .catch((error) => {
                     if (error.response.status === 422) {
-                        toast.error(error.response.data.details[0].message)
+                        toast.error(error.response.data.details[0].message);
                     } else {
-                        toast.error('Something went wrong')
+                        toast.error('Something went wrong');
                     }
-                })
+                });
         } else {
-            axios.put(`http://localhost:9000/project/${projectId}/task/${taskId}`, { title, description: desc })
+            axios.put(`http://localhost:9000/project/${projectId}/task/${taskId}`, taskData)
                 .then((res) => {
-                    setAddTaskModal(false)
-                    toast.success('Task is updated')
-                    refreshData(true)
-                    setTitle('')
-                    setDesc('')
+                    setAddTaskModal(false);
+                    toast.success('Task is updated');
+                    refreshData();
+                    setTitle('');
+                    setDesc('');
+                    setDeadline('');
                 })
                 .catch((error) => {
                     if (error.response.status === 422) {
-                        toast.error(error.response.data.details[0].message)
+                        toast.error(error.response.data.details[0].message);
                     } else {
-                        toast.error('Something went wrong')
+                        toast.error('Something went wrong');
                     }
-                })
+                });
         }
-    }
+    };
 
     return (
         <Transition appear show={isAddTaskModalOpen} as={Fragment}>
@@ -76,7 +82,6 @@ const AddTaskModal = ({ isAddTaskModalOpen, setAddTaskModal, projectId = null, t
                         <div className="fixed inset-0 bg-black/30" />
                     </Transition.Child>
                     <div className="fixed inset-0 flex items-center justify-center p-4 w-screen h-screen">
-                        {/* <div className="fixed inset-0 "> */}
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -87,7 +92,6 @@ const AddTaskModal = ({ isAddTaskModalOpen, setAddTaskModal, projectId = null, t
                             leaveTo="opacity-0 scale-95"
                         >
                             <Dialog.Panel className="rounded-md bg-white w-6/12">
-
                                 <Dialog.Title as='div' className={'bg-white shadow px-6 py-4 rounded-t-md sticky top-0'}>
                                     {!edit ? (<h1>Add Task</h1>) : (<h1>Edit Task</h1>)}
                                     <button onClick={() => setAddTaskModal(false)} className='absolute right-6 top-4 text-gray-500 hover:bg-gray-100 rounded focus:outline-none focus:ring focus:ring-offset-1 focus:ring-indigo-200 '>
@@ -105,20 +109,22 @@ const AddTaskModal = ({ isAddTaskModalOpen, setAddTaskModal, projectId = null, t
                                         <label htmlFor="Description" className='block text-gray-600'>Description</label>
                                         <textarea value={desc} onChange={(e) => setDesc(e.target.value)} className='border border-gray-300 rounded-md w-full text-sm py-2 px-2.5 focus:border-indigo-500 focus:outline-offset-1 focus:outline-indigo-400' rows="6" placeholder='Task description'></textarea>
                                     </div>
+                                    <div className='mb-2'>
+                                        <label htmlFor="deadline" className='block text-gray-600'>Deadline</label>
+                                        <input value={deadline} onChange={(e) => setDeadline(e.target.value)} type="date" className='border border-gray-300 rounded-md w-full text-sm py-2 px-2.5 focus:border-indigo-500 focus:outline-offset-1 focus:outline-indigo-400' />
+                                    </div>
                                     <div className='flex justify-end items-center space-x-2'>
                                         <BtnSecondary onClick={() => setAddTaskModal(false)}>Cancel</BtnSecondary>
                                         <BtnPrimary>Save</BtnPrimary>
                                     </div>
                                 </form>
-
                             </Dialog.Panel>
                         </Transition.Child>
-
                     </div>
                 </div>
             </Dialog>
         </Transition>
-    )
-}
+    );
+};
 
-export default AddTaskModal
+export default AddTaskModal;
